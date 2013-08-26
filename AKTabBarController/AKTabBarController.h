@@ -101,6 +101,11 @@
 // Hide / Show Methods
 - (void)showTabBarAnimated:(BOOL)animated;
 - (void)hideTabBarAnimated:(BOOL)animated;
+- (void)showTabBarAnimated:(BOOL)animated showNavBar:(BOOL)showNavBar;
+- (void)hideTabBarAnimated:(BOOL)animated hideNavBar:(BOOL)hideNavBar;
+- (void)showNavBarAnimated:(BOOL)animated;
+- (void)hideNavBarAnimated:(BOOL)animated;
+- (BOOL)isTabBarHidden;
 
 // Refresh the Tab Bar
 - (void)loadTabs;

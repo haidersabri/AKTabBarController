@@ -55,9 +55,11 @@
 
 - (void)layoutSubviews
 {
+  
     [super layoutSubviews];
     CGRect tabBarRect = _tabBar.frame;
-    tabBarRect.origin.y = CGRectGetHeight(self.bounds) - CGRectGetHeight(_tabBar.bounds);
+    //Haider: commented this out because was the cause of not being able to animate the tabbar up and down
+    //tabBarRect.origin.y = CGRectGetHeight(self.bounds) - CGRectGetHeight(_tabBar.bounds);
     [_tabBar setFrame:tabBarRect];
     
     CGRect contentViewRect = CGRectMake(0, 0, CGRectGetWidth(self.bounds), CGRectGetHeight(self.bounds) - ((!_isTabBarHidding) ? CGRectGetHeight(_tabBar.bounds) : 0));

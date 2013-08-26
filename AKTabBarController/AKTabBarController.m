@@ -37,7 +37,8 @@ static const float kPushAnimationDuration = 0.35;
 
 typedef enum {
     AKShowHideFromLeft,
-    AKShowHideFromRight
+    AKShowHideFromRight,
+    AKShowHideFromDown
 } AKShowHideFrom;
 
 - (void)loadTabs;
@@ -207,25 +208,31 @@ typedef enum {
 
 - (void)showTabBar:(AKShowHideFrom)showHideFrom animated:(BOOL)animated
 {
-    
     CGFloat directionVector;
-    
+    CGAffineTransform transform;
     switch (showHideFrom) {
         case AKShowHideFromLeft:
             directionVector = -1.0;
+            transform = CGAffineTransformMakeTranslation(CGRectGetWidth(self.view.bounds) * directionVector, 0);
             break;
         case AKShowHideFromRight:
             directionVector = 1.0;
+            transform = CGAffineTransformMakeTranslation(CGRectGetWidth(self.view.bounds) * directionVector, 0);
+            break;
+        case AKShowHideFromDown:
+            directionVector = 1.0;
+            transform = CGAffineTransformMakeTranslation(0, tabBarHeight * directionVector);
             break;
         default:
             break;
     }
     
     tabBar.hidden = NO;
-    tabBar.transform = CGAffineTransformMakeTranslation(CGRectGetWidth(self.view.bounds) * directionVector, 0);
+    tabBar.transform = transform;
+  
     // when the tabbarview is resized we can see the view behind
     
-    [UIView animateWithDuration:((animated) ? kPushAnimationDuration : 0) animations:^{
+    [UIView animateWithDuration:((animated) ? UINavigationControllerHideShowBarDuration : 0) animations:^{
         tabBar.transform = CGAffineTransformIdentity;
     } completion:^(BOOL finished) {
         tabBarView.isTabBarHidding = NO;
@@ -235,32 +242,40 @@ typedef enum {
 
 - (void)hideTabBar:(AKShowHideFrom)showHideFrom animated:(BOOL)animated
 {
-    
     CGFloat directionVector;
+    CGAffineTransform transform;
     switch (showHideFrom) {
         case AKShowHideFromLeft:
             directionVector = 1.0;
+            transform = CGAffineTransformMakeTranslation(CGRectGetWidth(self.view.bounds) * directionVector, 0);
             break;
         case AKShowHideFromRight:
             directionVector = -1.0;
+            transform = CGAffineTransformMakeTranslation(CGRectGetWidth(self.view.bounds) * directionVector, 0);
+            break;
+        case AKShowHideFromDown:
+            directionVector = 1.0;
+            transform = CGAffineTransformMakeTranslation(0, tabBarHeight * directionVector);
             break;
         default:
             break;
     }
-    
+
     tabBarView.isTabBarHidding = YES;
     
     CGRect tmpTabBarView = tabBarView.contentView.frame;
     tmpTabBarView.size.height = tabBarView.bounds.size.height;
     tabBarView.contentView.frame = tmpTabBarView;
-    
-    [UIView animateWithDuration:((animated) ? kPushAnimationDuration : 0) animations:^{
-        tabBar.transform = CGAffineTransformMakeTranslation(CGRectGetWidth(self.view.bounds) * directionVector, 0);
+
+    [UIView animateWithDuration:((animated) ? UINavigationControllerHideShowBarDuration : 0) animations:^{
+        tabBar.transform = transform;
     } completion:^(BOOL finished) {
         tabBar.hidden = YES;
         tabBar.transform = CGAffineTransformIdentity;
     }];
+
 }
+
 
 #pragma mark - Setters
 
@@ -319,11 +334,46 @@ typedef enum {
 #pragma mark - Hide / Show Methods
 
 - (void)showTabBarAnimated:(BOOL)animated {
-    [self showTabBar:AKShowHideFromRight animated:animated];
+    [self showTabBarAnimated:animated showNavBar:NO];
 }
 
 - (void)hideTabBarAnimated:(BOOL)animated {
-    [self hideTabBar:AKShowHideFromRight animated:animated];
+    [self hideTabBarAnimated:animated hideNavBar:NO];
+}
+
+- (void)showTabBarAnimated:(BOOL)animated showNavBar:(BOOL)showNavBar{
+  [self showTabBar:AKShowHideFromDown animated:animated];
+  if (showNavBar) {
+    [self showNavBarAnimated:animated];
+  }
+}
+- (void)hideTabBarAnimated:(BOOL)animated hideNavBar:(BOOL)hideNavBar{
+  [self hideTabBar:AKShowHideFromDown animated:animated];
+  if(hideNavBar){
+    [self hideNavBarAnimated:animated];
+  }
+}
+
+- (void)showNavBarAnimated:(BOOL)animated{  
+  [UIView animateWithDuration:UINavigationControllerHideShowBarDuration animations:^{
+    if([self.selectedViewController isKindOfClass:[UINavigationController class]]){
+      UINavigationController *navController = ((UINavigationController*)self.selectedViewController);
+      [navController setNavigationBarHidden:NO animated:animated];
+    }
+  }];
+}
+- (void)hideNavBarAnimated:(BOOL)animated{
+  [UIView animateWithDuration:UINavigationControllerHideShowBarDuration animations:^{
+    if([self.selectedViewController isKindOfClass:[UINavigationController class]]){
+      UINavigationController *navController = ((UINavigationController*)self.selectedViewController);
+      [navController setNavigationBarHidden:YES animated:animated];
+    }
+  }];
+}
+
+
+- (BOOL)isTabBarHidden{
+  return tabBar.hidden;
 }
 
 #pragma mark - Required Protocol Method
