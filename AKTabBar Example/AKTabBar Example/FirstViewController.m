@@ -7,6 +7,8 @@
 //
 
 #import "FirstViewController.h"
+#import "UIViewController+AKTabBarController.h"
+#import "AKTabBarController.h"
 
 @interface FirstViewController ()
 
@@ -32,6 +34,20 @@
  
     // Uncomment the following line to display an Edit button in the navigation bar for this view controller.
     // self.navigationItem.rightBarButtonItem = self.editButtonItem;
+    self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAction target:self action:@selector(animateTabbar)];
+}
+
+- (void)animateTabbar{
+  if([self.akTabBarController isTabBarHidden]){
+    [self.akTabBarController showTabBarAnimated:YES showNavBar:YES];
+  } else{
+    [self.akTabBarController hideTabBarAnimated:YES hideNavBar:YES];
+    double delayInSeconds = 1.0;
+    dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delayInSeconds * NSEC_PER_SEC));
+    dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
+      [self.akTabBarController showTabBarAnimated:YES showNavBar:YES];
+    });
+  }
 }
 
 - (void)viewDidUnload
