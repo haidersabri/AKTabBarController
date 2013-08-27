@@ -234,8 +234,10 @@ typedef enum {
     
     [UIView animateWithDuration:((animated) ? UINavigationControllerHideShowBarDuration : 0) animations:^{
         tabBar.transform = CGAffineTransformIdentity;
+        [tabBarView.contentView layoutIfNeeded];
     } completion:^(BOOL finished) {
         tabBarView.isTabBarHidding = NO;
+        //Does setNeedsLayout messed up with autolayout here?
         [tabBarView setNeedsLayout];
     }];
 }
@@ -269,6 +271,7 @@ typedef enum {
 
     [UIView animateWithDuration:((animated) ? UINavigationControllerHideShowBarDuration : 0) animations:^{
         tabBar.transform = transform;
+        [tabBarView.contentView layoutIfNeeded];
     } completion:^(BOOL finished) {
         tabBar.hidden = YES;
         tabBar.transform = CGAffineTransformIdentity;
